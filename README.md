@@ -7,7 +7,7 @@ VBAUnittest is testing framework for excel VBA.
 - 全てのテストを実行するallTestRun or テストモジュールの全てのテストを実行するtestModuleRunを使用する場合は以下の設定が必要です。
 - 「開発」タブの「マクロのセキュリティ」から「VBAプロジェクトオブジェクトモデルへのアクセスを信頼する」にチェックを付けて下さい。
 
-![Setting](https://github.com/takus69/VBAUnittest/setting.png)
+![Setting](https://github.com/takus69/VBAUnittest/blob/master/setting.png)
 
 ## Usage
 ### Naming conventions
