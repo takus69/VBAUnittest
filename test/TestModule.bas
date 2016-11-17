@@ -79,7 +79,7 @@ Sub eachTestRun()
     End If
 End Sub
 
-Function resultCheck(a, b)
+Function resultCheck(a, b) As Boolean
     If a = b Then
         resultCheck = True
     Else

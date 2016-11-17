@@ -5,7 +5,7 @@ Sub testAdd()
 End Sub
 
 ' Method
-Function add(a, b)
+Function add(a As Integer, b As Integer) As Integer
     add = a + b
 End Function
 

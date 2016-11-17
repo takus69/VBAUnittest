@@ -67,3 +67,11 @@ Bug reports and pull requests are welcome on GitHub at (https://github.com/takus
 
 ## License
 This source codes is available as opne source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+
+## Release Notes
+### v1.0.1
+- Functionの戻り値のデータ型を明記
+- ソースコードにライセンス表記を追加
+
+### v1.0.0
+- 公開

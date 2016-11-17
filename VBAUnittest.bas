@@ -1,8 +1,13 @@
 Attribute VB_Name = "VBAUnittest"
-Option Explicit
+''
+' VBAUnittest v1.0.1
+' Copyright(c) 2016 takus - https://github.com/takus69/VBAUnittest
+'
+' @author takus4649@gmail.com
+' @license MIT (https://opensource.org/licenses/MIT)
+'' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 
-' VERSION
-Const VERSION As String = "1.0.0"
+Option Explicit
 
 Dim tests As Object
 Dim runCount As Integer
@@ -62,9 +67,9 @@ Sub suiteRun()
     showResult
 End Sub
 
-Sub testModuleRun(testModule)
+Sub testModuleRun(TestModule As String)
     testInit
-    addTestsInTestModule testModule
+    addTestsInTestModule TestModule
     suiteRun
 End Sub
 
@@ -75,7 +80,7 @@ Sub allTestRun()
 End Sub
 
 ' Assertion
-Function assertTrue(status As Boolean)
+Function assertTrue(status As Boolean) As Boolean
     assertMessage = setAssert(True, status)
     assertCount = assertCount + 1
     If Not status Then
@@ -84,22 +89,22 @@ Function assertTrue(status As Boolean)
     assertTrue = status
 End Function
 
-Function assertFalse(status As Boolean)
+Function assertFalse(status As Boolean) As Boolean
     assertFalse = assertTrue(Not status)
     assertMessage = setAssert(False, status)
 End Function
 
-Function assert(a, b)
+Function assert(a, b) As Boolean
     assert = assertTrue(a = b)
     assertMessage = setAssert(a, b)
 End Function
 
 ' Messages
-Function testSummary()
+Function testSummary() As String
     testSummary = runCount & " run, " & failedCount & " failed"
 End Function
 
-Function failedMessage()
+Function failedMessage() As String
     failedMessage = runningTest & ", Assertion" & assertCount & ", " & assertMessage
 End Function
 
@@ -134,16 +139,16 @@ Private Sub showFailed()
     Debug.Print failedMessage
 End Sub
 
-Private Function setAssert(expected, actual)
+Private Function setAssert(expected, actual) As String
     setAssert = "Expected:" & expected & ", " & "Actual:" & actual
 End Function
 
-Private Function fetchProcs(testModule)
+Private Function fetchProcs(TestModule As String) As String()
     Dim buf As String, testName As String, procNames() As String, i As Long, cnt As Integer
     cnt = -1
-    With ThisWorkbook.VBProject.VBComponents(testModule).CodeModule
+    With ThisWorkbook.VBProject.VBComponents(TestModule).CodeModule
         For i = 1 To .CountOfLines
-            testName = testModule & "." & .ProcOfLine(i, 0)
+            testName = TestModule & "." & .ProcOfLine(i, 0)
             If buf <> testName And .ProcOfLine(i, 0) Like "test*" Then
                 buf = testName
                 If Not isTestExcluded(testName) Then
@@ -159,19 +164,19 @@ Private Function fetchProcs(testModule)
     fetchProcs = procNames
 End Function
 
-Private Function isTestExcluded(testName)
+Private Function isTestExcluded(testName As String) As Boolean
     isTestExcluded = excludedTests.exists(testName)
 End Function
 
-Private Function isModuleExcluded(moduleName)
+Private Function isModuleExcluded(moduleName As String) As Boolean
     isModuleExcluded = excludedModules.exists(moduleName)
 End Function
 
-Private Sub addTestsInTestModule(testModule)
+Private Sub addTestsInTestModule(TestModule As String)
     Dim procNames() As String
     Dim i As Integer
     
-    procNames = fetchProcs(testModule)
+    procNames = fetchProcs(TestModule)
     For i = 0 To UBound(procNames)
         addTest procNames(i)
     Next i
@@ -188,10 +193,10 @@ Private Sub addAllTest()
     Next comp
 End Sub
 
-Private Sub addExcludedTest(excludedTest)
+Private Sub addExcludedTest(excludedTest As String)
     excludedTests.add excludedTest, True
 End Sub
 
-Private Sub addExcludedModule(excludedModule)
+Private Sub addExcludedModule(excludedModule As String)
     excludedModules.add excludedModule, True
 End Sub
