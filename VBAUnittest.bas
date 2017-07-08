@@ -1,6 +1,6 @@
 Attribute VB_Name = "VBAUnittest"
 ''
-' VBAUnittest v1.0.1
+' VBAUnittest v1.0.2
 ' Copyright(c) 2016 takus - https://github.com/takus69/VBAUnittest
 '
 ' @author takus4649@gmail.com
@@ -18,6 +18,8 @@ Dim assertMessage As String
 Dim runningTest As String
 Dim excludedTests As Object
 Dim excludedModules As Object
+Const setUpMethodName As String = "setUp"
+Const tearDownMethodName As String = "tearDown"
 
 
 ' Public procedure
@@ -34,9 +36,7 @@ End Sub
 ' Test runner
 Sub testRun(test As String)
     testInit
-    setUp
     oneTestRun test
-    tearDown
     
     showResult
 End Sub
@@ -58,11 +58,9 @@ End Sub
 Sub suiteRun()
     Dim i As Integer
     
-    setUp
     For i = 0 To tests.Count - 1
         oneTestRun tests.Item(i)
     Next i
-    tearDown
     
     showResult
 End Sub
@@ -81,22 +79,30 @@ End Sub
 
 ' Assertion
 Function assertTrue(status As Boolean) As Boolean
-    assertMessage = setAssert(True, status)
     assertCount = assertCount + 1
     If Not status Then
         assertFailedCount = assertFailedCount + 1
+        assertMessage = setAssert(True, status)
     End If
     assertTrue = status
 End Function
 
 Function assertFalse(status As Boolean) As Boolean
-    assertFalse = assertTrue(Not status)
-    assertMessage = setAssert(False, status)
+    Dim ret As Boolean
+    ret = assertTrue(Not status)
+    If Not ret Then
+        assertMessage = setAssert(False, status)
+    End If
+    assertFalse = ret
 End Function
 
-Function assert(a, b) As Boolean
-    assert = assertTrue(a = b)
-    assertMessage = setAssert(a, b)
+Function assert(expected, actual) As Boolean
+    Dim ret As Boolean
+    ret = assertTrue(expected = actual)
+    If Not ret Then
+        assertMessage = setAssert(expected, actual)
+    End If
+    assert = ret
 End Function
 
 ' Messages
@@ -105,24 +111,77 @@ Function testSummary() As String
 End Function
 
 Function failedMessage() As String
-    failedMessage = runningTest & ", Assertion" & assertCount & ", " & assertMessage
+    failedMessage = runningTest & ", Count of assertion is " & assertCount & ", " & assertMessage
+End Function
+
+Function isSetUp(TestModule As String) As Boolean
+    Dim methodName As String, i As Long
+    
+    With ThisWorkbook.VBProject.VBComponents(TestModule).CodeModule
+        For i = 1 To .CountOfLines
+            methodName = .ProcOfLine(i, 0)
+            If methodName = setUpMethodName Then
+                isSetUp = True
+                Exit Function
+            End If
+        Next i
+    End With
+    
+    isSetUp = False
+End Function
+
+Function isTearDown(TestModule As String) As Boolean
+    Dim methodName As String, i As Long
+    
+    With ThisWorkbook.VBProject.VBComponents(TestModule).CodeModule
+        For i = 1 To .CountOfLines
+            methodName = .ProcOfLine(i, 0)
+            If methodName = tearDownMethodName Then
+                isTearDown = True
+                Exit Function
+            End If
+        Next i
+    End With
+    
+    isTearDown = False
 End Function
 
 ' Private procedure
 Private Sub oneTestRun(test As String)
-    Dim runStatus As Boolean
+    Dim runStatus As Boolean, arr() As String, runningModule As String
     assertFailedCount = 0
     assertCount = 0
     runningTest = test
+    runningModule = fetchModule(test)
+
+    If isSetUp(runningModule) Then
+        Application.Run runningModule & "." & setUpMethodName
+    End If
     
     runCount = runCount + 1
     Application.Run test
+    
+    If isTearDown(runningModule) Then
+        Application.Run runningModule & "." & tearDownMethodName
+    End If
     
     If assertFailedCount > 0 Then
         failedCount = failedCount + 1
         showFailed
     End If
 End Sub
+
+Private Function fetchModule(testMethod)
+    Dim runningModule As String, arr() As String
+    
+    runningModule = ""
+    arr = Split(testMethod, ".")
+    If UBound(arr) = 1 Then
+        runningModule = arr(0)
+    End If
+    
+    fetchModule = runningModule
+End Function
 
 Private Sub showResult()
     Dim result As String
@@ -177,9 +236,11 @@ Private Sub addTestsInTestModule(TestModule As String)
     Dim i As Integer
     
     procNames = fetchProcs(TestModule)
-    For i = 0 To UBound(procNames)
-        addTest procNames(i)
-    Next i
+    If (Not procNames) <> -1 Then ' Check no array data
+        For i = 0 To UBound(procNames)
+            addTest procNames(i)
+        Next i
+    End If
 End Sub
 
 Private Sub addAllTest()

@@ -2,43 +2,77 @@
 VBAUnittest is testing framework for excel VBA.
 
 ## Installation
-- ExcelのVisual Basic Editorにimportしてください。
-- Excelの拡張子は、xlsmにする必要があります。
-- 全てのテストを実行するallTestRun or テストモジュールの全てのテストを実行するtestModuleRunを使用する場合は以下の設定が必要です。
-- 「開発」タブの「マクロのセキュリティ」から「VBAプロジェクトオブジェクトモデルへのアクセスを信頼する」にチェックを付けて下さい。
+- Import VBAUnitest.bas to Visual Basic Editor.
+- Set up below, if you use "allTestRun" or "testModuleRun".
 
 ![Setting](https://github.com/takus69/VBAUnittest/blob/master/setting.png)
 
+## Sample
+1. Make product and test codes.
+
+``` MainModule.bas
+Attribute VB_Name = "MainModule"
+Function add(a, b)
+    add = a + b
+End Function
+
+Function subtraction(a, b)
+    subtraction = a - b
+End Function
+```
+
+``` TestModule.bas
+Attribute VB_Name = "TestModule"
+' Test Case
+Sub testAdd()
+    assert 3, add(1, 2)
+    assert 5, add(2, 3)
+End Sub
+
+Sub testSubtraction()
+    assert 3, subtraction(4, 1)
+    assert -1, subtraction(1, 2)
+End Sub
+```
+2. Run tests.
+Execute "allTestRun" macro.
+Result is below.
+
+```
+green : 2 run, 0 failed
+```
+
+
 ## Usage
 ### Naming conventions
-- テストモジュール名は、Testから開始して下さい。(e.g. TestModule)
-- テストプロシージャ名は、testから開始して下さい。(e.g. testMethod)
+- Name of test module start with "Test". (e.g. TestModule)
+- Name of test procedure start with "test". (e.g. testMethod)
 
 ### Assertion
-以下のAssertionが定義してあります。
+The following assertions are defined.
 - assertTrue
 - assertFalse
 - assert(a, b)
 
 ### allTestRun
-- allTestRunを実行すると、Testから開始するモジュール内にある、testから開始するプロシージャを全て実行します。
-- テスト対象から除外したい場合は、モジュール単位に、プロシージャ単位で除外が可能です。(以下に設定例を示します。)
-- setExcludedTestsに以下を追加します。(プロシージャの例)
-  - addExcludedTest "TestModule.testExcludedTest"
-- setExcludedModulesに以下を追加します。(モジュールの例)
-  - addExcludedModule "TestExcludedModule"
+- "allTestRun" executes all test procedure started with "test" in module started with "Test".
+- Each test module or each test procedure can be excluded. (Example is below.)
+- Add below in "setExcludedTests".
+  - e.g. addExcludedTest "TestModule.testExcludedTest"
+- Add below in "setExcludedModules".
+  - e.g. addExcludedModule "TestExcludedModule"
 
 ### testModuleRun
-- testModuleRunで設定したモジュール内にある、testから開始するプロシージャを全て実行します。
+- "testModuleRun" executes all test procedure started with "test" in module of argument.
 - e.g. testModuleRun("TestModule")
-- テスト対象から除外したい場合は、上記allTestRunと同様です。
+- Each test procedure can be excluded. (Same with "allTestRun")
 
 ### suiteRun
-- 実行したいテストプロシージャを設定して、まとめてテストできます。
+- "suiteRun" executes tests that you need.
 - e.g.
 
 ```
-Sub testSuite()
+Sub suiteTestRun()
   testInit
   addTest "TestModule.testMethod"
   addTest "TestModule.testAssert"
@@ -47,13 +81,17 @@ End Sub
 ```
 
 ### testRun
-- テストを一つずつ実行できます。
+- "testRun" executes a test.
 - e.g.
-  - testRun "TestModule.testMethod"
+
+```
+Sub eachTestRun()
+  testRun "TestModule.testMethod"
+End Sub
+```
 
 ### Test Case
-- テストケースは、以下のように設定します。
-- e.g.
+- Example of test case is below.
 
 ```
 Sub testMethod()
@@ -61,6 +99,10 @@ Sub testMethod()
   assertTrue(isTrue)
 End Sub
 ```
+### setUp and tearDown
+- "setUp" executes before each test procedure.
+- "tearDown" executes after each test procedure.
+
 
 ## Contributing
 Bug reports and pull requests are welcome on GitHub at (https://github.com/takus69/VBAUnittest.git).
@@ -69,9 +111,16 @@ Bug reports and pull requests are welcome on GitHub at (https://github.com/takus
 This source codes is available as opne source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
 
 ## Release Notes
+### v1.0.2
+- Bug fix
+  - Error occures if there are no "setUp" or "tearDown".
+  - Error occures if there is no procedure.
+  - The assertion error message shows last assertion even if it is success.
+  - Error occures if there are two test modules with "setUp".
+
 ### v1.0.1
-- Functionの戻り値のデータ型を明記
-- ソースコードにライセンス表記を追加
+- Add data type of return value for function.
+- Add license.
 
 ### v1.0.0
-- 公開
+- First release

@@ -17,4 +17,3 @@ End Sub
 Sub testExcludedTest()
     assertTrue False
 End Sub
-

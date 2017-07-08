@@ -44,6 +44,21 @@ Sub testExcludedTest()
     assertTrue False
 End Sub
 
+Sub testManyAssertion()
+    assert 1, 2
+    assert 1, 1
+End Sub
+
+Sub testIsSetUp()
+    assertFalse isSetUp("TestModule2")
+    assertTrue isSetUp("TestModule")
+End Sub
+
+Sub testIsTearDown()
+    assertFalse isSetUp("TestModule2")
+    assertTrue isSetUp("TestModule")
+End Sub
+
 ' TestRunner
 Sub eachTestRun()
     testStatus = True
@@ -61,16 +76,19 @@ Sub eachTestRun()
     testStatus = resultCheck(testSummary, "1 run, 1 failed")
     
     testRun "TestModule.testFailedMessageTrue"
-    testStatus = resultCheck(failedMessage, "TestModule.testFailedMessageTrue, Assertion1, Expected:True, Actual:False")
+    testStatus = resultCheck(failedMessage, "TestModule.testFailedMessageTrue, Count of assertion is 1, Expected:True, Actual:False")
 
     testRun "TestModule.testFailedMessageFalse"
-    testStatus = resultCheck(failedMessage, "TestModule.testFailedMessageFalse, Assertion2, Expected:False, Actual:True")
+    testStatus = resultCheck(failedMessage, "TestModule.testFailedMessageFalse, Count of assertion is 2, Expected:False, Actual:True")
 
     testRun "TestModule.testFailedMessageEqual"
-    testStatus = resultCheck(failedMessage, "TestModule.testFailedMessageEqual, Assertion3, Expected:1, Actual:2")
+    testStatus = resultCheck(failedMessage, "TestModule.testFailedMessageEqual, Count of assertion is 3, Expected:1, Actual:2")
     
     testRun "TestModule.testTweAssertionFailed"
-    testStatus = resultCheck(failedMessage, "TestModule.testTweAssertionFailed, Assertion2, Expected:1, Actual:2")
+    testStatus = resultCheck(failedMessage, "TestModule.testTweAssertionFailed, Count of assertion is 2, Expected:1, Actual:2")
+    
+    testRun "TestModule.testManyAssertion"
+    testStatus = resultCheck(failedMessage, "TestModule.testManyAssertion, Count of assertion is 2, Expected:1, Actual:2")
     
     If testStatus Then
         Debug.Print "All test green!"
@@ -112,7 +130,7 @@ Sub ModuleRunTest()
     testStatus = True
     
     testModuleRun "TestModule"
-    testStatus = resultCheck(testSummary, "6 run, 5 failed")
+    testStatus = resultCheck(testSummary, "9 run, 6 failed")
     
     If testStatus Then
         Debug.Print "ModuleRunTest is green!"
@@ -125,7 +143,7 @@ Sub AllTestRunTest()
     testStatus = True
     
     allTestRun
-    testStatus = resultCheck(testSummary, "8 run, 6 failed")
+    testStatus = resultCheck(testSummary, "12 run, 7 failed")
     
     If testStatus Then
         Debug.Print "AllTestRunTest is green!"
